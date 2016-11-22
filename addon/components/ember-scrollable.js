@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import InboundActionsMixin from 'ember-component-inbound-actions/inbound-actions';
 import layout from '../templates/components/ember-scrollable';
-import { Horizontal, Vertical } from '../classes/scrollable';
 
 const {
   get,
@@ -32,23 +31,11 @@ export default Ember.Component.extend(InboundActionsMixin, {
   scrollTo: null,
   _scrollTo: null,
 
-  verticalScrollbar: null,
-  _verticalScrollbarElement: null,
-  _verticalHandleElement: null,
-  _prevScrollTop: 0,
-
-  horizontalScrollbar: null,
-  _horizontalScrollbarElement: null,
-  _horizontalHandleElement: null,
-  _prevScrolLeft: 0,
-
-  _scrollbarWidth: null,
 
   init() {
     this._super(...arguments);
-    this.set('scrollbars', []);
-    this.setupResize();
-    this.measureScrollbar();
+    //this.setupResize();
+    //this.measureScrollbar();
   },
 
   didInsertElement() {
@@ -59,19 +46,6 @@ export default Ember.Component.extend(InboundActionsMixin, {
     if (this.get('autoHide')) {
       this.on('mouseEnter', this, this.showScrollbar);
     }
-
-    // horizontal scrollbar events
-    this._horizontalHandleElement.on('mousedown', bind(this, this.startDrag, this._horizontalHandleElement));
-    this._horizontalScrollbarElement.on('mousedown', bind(this, this.jumpScroll, this._horizontalHandleElement));
-    //this._horizontalScrollbarElement.on('mouseLeave', bind(this, this.endDrag));
-    //vertical scrollbar
-    this._verticalHandleElement.on('mousedown', bind(this, this.startDrag, this._verticalHandleElement));
-    this._verticalScrollbarElement.on('mousedown', bind(this, this.jumpScroll, this._verticalHandleElement));
-    //this._verticalScrollbarElement.on('mouseLeave', bind(this, this.endDrag));
-
-    this._scrollContentElement.on('scroll', bind(this, this.scrolled));
-
-    scheduleOnce('afterRender', this, this.setupScrollbar);
   },
 
   didReceiveAttrs() {
@@ -84,35 +58,6 @@ export default Ember.Component.extend(InboundActionsMixin, {
     }
   },
 
-  measureScrollbar() {
-
-    /**
-     * Calculate scrollbar width
-     *
-     * Original function by Jonathan Sharp:
-     * http://jdsharp.us/jQuery/minute/calculate-scrollbar-width.php
-     * Updated to work in Chrome v25.
-     */
-    function scrollbarWidth() {
-      // Append a temporary scrolling element to the DOM, then measure
-      // the difference between between its outer and inner elements.
-      var tempEl = $('<div class="scrollbar-width-tester" style="width:50px;height:50px;overflow-y:scroll;position:absolute;top:-200px;left:-200px;"><div style="height:100px;"></div>');
-      $('body').append(tempEl);
-      var width = $(tempEl).innerWidth();
-      var widthMinusScrollbars = $('div', tempEl).innerWidth();
-      tempEl.remove();
-      // On OS X if the scrollbar is set to auto hide it will have zero width. On webkit we can still
-      // hide it using ::-webkit-scrollbar { width:0; height:0; } but there is no moz equivalent. So we're
-      // forced to sniff Firefox and return a hard-coded scrollbar width. I know, I know...
-      if (width === widthMinusScrollbars && navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
-        return 17;
-      }
-      return (width - widthMinusScrollbars);
-    }
-
-    this._scrollbarWidth = scrollbarWidth();
-
-  },
 
   setupScrollbar() {
     let scrollbars = this.createScrollbars();
@@ -139,117 +84,6 @@ export default Ember.Component.extend(InboundActionsMixin, {
 
   },
 
-  setupResize() {
-    this._resizeHandler = () => {
-      debounce(this, this.resizeScrollbar, 16);
-    };
-
-    window.addEventListener('resize', this._resizeHandler, true);
-  },
-
-  createScrollbars() {
-    if (this.get('isDestroyed')) {
-      return;
-    }
-
-    if (this.get('both')) {
-      return [this._setupHorizontalScrollbar(), this._setupVerticalScrollbar()]
-    }
-    if (this.get('horizontal')) {
-      return [this._setupHorizontalScrollbar()];
-    } else {
-      return [this._setupVerticalScrollbar()];
-    }
-  },
-
-  _setupHorizontalScrollbar() {
-    return new Horizontal({
-      scrollContentElement: this._scrollContentElement,
-      scrollbarElement: this._horizontalScrollbarElement,
-      handleElement: this._horizontalHandleElement,
-      contentElement: this._contentElement,
-      width: this.$().width(),
-      height: this.$().height(),
-      scrollbarWidth: this._scrollbarWidth
-    });
-  },
-
-  _setupVerticalScrollbar() {
-    return new Horizontal({
-      scrollContentElement: this._scrollContentElement,
-      scrollbarElement: this._verticalScrollbarElement,
-      handleElement: this._verticalHandleElement,
-      contentElement: this._contentElement,
-      width: this.$().width(),
-      height: this.$().height(),
-      scrollbarWidth: this._scrollbarWidth
-    });
-  },
-
-  getScrollbarForHandle(handle) {
-    return this.get('scrollbars').find((o) => get(o, 'handleElement') === handle);
-  },
-
-  getScrollBarForEvent(e){
-    // moved vertical scrollbar
-    if (event.target.scrollTop !== this._prevScrollTop) {
-      this._prevScrollTop = event.target.scrollTop;
-      return this.get('scrollbars').find((o) => o instanceof Vertical);
-    } else if (event.target.scrollLeft !== this._prevScrolLeft){
-      this._prevScrolLeft = event.target.scrollLeft;
-      return this.get('scrollbars').find((o) => o instanceof Horizontal);
-    } else {
-      return null;
-    }
-  },
-
-  startDrag(handle, e) {
-    // Preventing the event's default action stops text being
-    // selectable during the drag.
-    e.preventDefault();
-
-    const scrollbar = this.getScrollbarForHandle(handle);
-    scrollbar.startDrag(e);
-
-    this.on('mouseMove', this, this.drag.bind(this, scrollbar));
-    this.on('mouseUp', this, this.endDrag);
-  },
-
-  /**
-  * Drag scrollbar handle
-  */
-  drag(scrollbar, e) {
-    e.preventDefault();
-
-    scrollbar.drag(e);
-  },
-
-  endDrag() {
-    this.off('mouseMove', this, this.drag);
-    this.off('mouseUp', this, this.endDrag);
-  },
-
-  mouseLeave() {
-    this.endDrag();
-  },
-
-  jumpScroll(handle, e) {
-    // If the drag handle element was pressed, don't do anything here.
-    if (e.target === this._verticalHandleElement[0] || e.target === this._horizontalHandleElement[0]) {
-      return;
-    }
-
-    this.getScrollbarForHandle(handle).jumpScroll(e);
-  },
-
-  scrolled(event) {
-    this.getScrollBarForEvent(event).update();
-    this.showScrollbar();
-
-    this.checkScrolledToBottom();
-
-    this.sendScroll(event);
-  },
 
   checkScrolledToBottom() {
     let scrollBuffer = this.get('scrollBuffer');
@@ -264,11 +98,11 @@ export default Ember.Component.extend(InboundActionsMixin, {
     this.sendAction('onScrolledToBottom');
   },
 
-  sendScroll(event) {
-    if (this.get('onScroll')) {
-      this.sendAction('onScroll', this.getScrollbarForHandle(event).scrollOffset(), event);
-    }
-  },
+  // sendScroll(event) {
+  //   if (this.get('onScroll')) {
+  //     this.sendAction('onScroll', this.getScrollbarForHandle(event).scrollOffset(), event);
+  //   }
+  // },
 
   scrollToPosition(offset) {
     offset = Number.parseInt(offset, 10);
@@ -286,15 +120,8 @@ export default Ember.Component.extend(InboundActionsMixin, {
   },
 
   resizeScrollbar() {
-    let scrollbar = this.get('scrollbars');
-    if (isEmpty(scrollbar)) {
-      return;
-    }
-
-    scrollbar = this.createScrollbars();
-    this.set('scrollbars', scrollbar);
-
-    this.showScrollbar();
+    // TODO figure this out
+    //this.showScrollbar();
   },
 
   showScrollbar() {

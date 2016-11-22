@@ -1,6 +1,6 @@
 import Ember from 'ember';
-const { 
-  String: { camelize } 
+const {
+  String: { camelize }
 } = Ember;
 
 const pageJumpMultp = 7/8;
@@ -24,7 +24,7 @@ export default class Scrollable {
   startDrag(e) {
     this.dragOffset = this.eventOffset(e) - this.handleOffset();
   }
-  
+
   handleOffset() {
     return this.handleElement.offset()[this.offsetAttr];
   }
@@ -74,6 +74,8 @@ export default class Scrollable {
   }
 
   jumpScroll(e) {
+    // TODO some of these properties should be passed in and managed by the hiearchical nature of components
+    // and not in this pointcut object
     // The content will scroll by 7/8 of a page.
     let jumpAmt = pageJumpMultp * this.scrollContentSize();
 
@@ -87,6 +89,7 @@ export default class Scrollable {
   }
 
   update() {
+    // TODO this should be in ember-scrollable
     let scrollOffset = this.scrollOffset();
     let contentSize = this.contentOuterSize();
     let scrollbarSize = this.scrollbarSize();
@@ -184,3 +187,10 @@ export class Horizontal extends Scrollable {
   }
 }
 
+
+export class ScrollableWrapper  {
+  constructor(options) {
+
+  }
+
+}

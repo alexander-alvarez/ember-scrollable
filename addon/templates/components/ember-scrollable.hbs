@@ -1,5 +1,12 @@
-{{resize-detector selector on-resize=(action 'recalculate')}}
-<div class="tse-scrollbar"><div class="drag-handle {{if showHandle 'visible'}}"></div></div>
+{{resize-detector (concat '#' elementId) on-resize=(action 'recalculate')}}
+
+{{#if both}}
+  {{tse-scrollbar true showHandle}}
+  {{tse-scrollbar false showHandle}}
+{{else}}
+  {{tse-scrollbar horizontal showHandle}}
+{{/if}}
+
 <div class="tse-scroll-content">
   <div class="tse-content scrollable-content">
     {{yield (hash

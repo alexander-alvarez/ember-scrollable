@@ -72,7 +72,7 @@
 .tse-scrollable.horizontal {
   .tse-scroll-content {
     overflow-x : scroll;
-    overflow-y : hidden;
+    overflow-y : scroll;
   }
 
   .tse-scroll-content::-webkit-scrollbar,
@@ -81,7 +81,7 @@
     height : 0;
   }
 
-  .tse-scrollbar {
+  .tse-scrollbar.tse-scrollbar-horizontal {
     top : auto;
     left : 0;
     width : auto;

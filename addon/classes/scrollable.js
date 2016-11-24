@@ -104,8 +104,9 @@ export default class Scrollable {
       // check if handleSize is too small
       handleSize = handleSizeCalculated < 10 ? 10 : handleSizeCalculated;
     }
-
-    this.updateHandle(handleOffset, handleSize);
+    handleSize += 'px';
+    handleOffset += 'px';
+    return {handleOffset, handleSize};
    }
 
    isScrolledToBottom(scrollBuffer = 0) {
@@ -130,14 +131,16 @@ export class Vertical extends Scrollable {
     this.scrollOffsetAttr = 'scrollTop';
     this.offsetAttr = 'top';
     this.sizeAttr = 'height';
-
-    this.resizeScrollContent();
-    this.update();
   }
 
   resizeScrollContent() {
-    this.scrollContentElement.width(this.width + this.scrollbarWidth);
-    this.scrollContentElement.height(this.height);
+    const width = (this.width + this.scrollbarWidth)  + 'px';
+    const height = this.height  + 'px';
+    return {width, height};
+  }
+
+  resizeContentElement() {
+    return {};
   }
 
   eventOffset(e) {
@@ -166,14 +169,16 @@ export class Horizontal extends Scrollable {
     this.offsetAttr = 'left';
     this.sizeAttr = 'width';
 
-    this.resizeScrollContent();
-    this.update();
   }
 
   resizeScrollContent() {
-    this.scrollContentElement.width(this.width);
-    this.scrollContentElement.height(this.height + this.scrollbarWidth);
-    this.contentElement.height(this.height);
+    const width = this.width  + 'px';
+    const height  = (this.height + this.scrollbarWidth)  + 'px';
+    return {width, height};
+  }
+
+  resizeContentElement() {
+    return {height: this.height + 'px'};
   }
 
   eventOffset(e) {

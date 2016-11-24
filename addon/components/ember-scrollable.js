@@ -1,15 +1,20 @@
 import Ember from 'ember';
 import InboundActionsMixin from 'ember-component-inbound-actions/inbound-actions';
 import layout from '../templates/components/ember-scrollable';
-import { Horizontal, Vertical } from '../classes/scrollable';
+import {Horizontal, Vertical} from '../classes/scrollable';
 
 const {
+  computed,
   run: {
     scheduleOnce,
     debounce
   },
   $,
-  isPresent
+  isEmpty,
+  isPresent,
+  String: {
+    htmlSafe
+  }
 } = Ember;
 
 const hideDelay = Ember.testing ? 16 : 1000;
@@ -18,6 +23,22 @@ const scrollbarSelector = '.tse-scrollbar';
 const handleSelector = '.drag-handle';
 const scrollContentSelector = '.tse-scroll-content';
 const contentSelector = '.tse-content';
+
+function styleify(obj) {
+  if (isEmpty(obj)) {
+    return htmlSafe('');
+  }
+  const styles = Object.keys(obj).reduce((styleString, key) => {
+    const styleValue = obj[key];
+    if (!isEmpty(styleValue)) {
+      styleString += `${key}: ${styleValue}; `;
+    }
+    return styleString;
+  }, '');
+  return htmlSafe(styles);
+
+}
+
 
 export default Ember.Component.extend(InboundActionsMixin, {
   layout,
@@ -60,6 +81,40 @@ export default Ember.Component.extend(InboundActionsMixin, {
    * @type Number
    */
   _previousScrollTo: null,
+
+
+  /*
+   * JSON object with keys representing CSS styles their respective values for the content that is being scrolled.
+   * @property scrollContentStyles
+   * @private
+   * @type JSON
+   */
+  scrollContentStylesObject: null,
+
+  scrollContentStyles: computed('scrollContentStylesObject', function() {
+    return styleify(this.get('scrollContentStylesObject'));
+  }),
+
+  contentStylesObject: null,
+
+  contentStyles: computed('contentStylesObject', function() {
+    return styleify(this.get('contentStylesObject'));
+  }),
+
+  handleStylesObject: null,
+
+  handleStyles: computed('handleStylesObject', function() {
+    const handleStylesObject = this.get('handleStylesObject');
+    if (handleStylesObject) {
+      if (this.get('horizontal')) {
+        const {handleOffset: left, handleSize: width} = handleStylesObject;
+        return styleify({left, width});
+      } else {
+        const {handleOffset: top, handleSize: height} = handleStylesObject;
+        return styleify({top, height});
+      }
+    }
+  }),
 
   init() {
     this._super(...arguments);
@@ -149,7 +204,7 @@ export default Ember.Component.extend(InboundActionsMixin, {
 
     let ScrollbarClass = this.get('horizontal') ? Horizontal : Vertical;
 
-    return new ScrollbarClass({
+    const scrollBar = new ScrollbarClass({
       scrollContentElement: this._scrollContentElement,
       scrollbarElement: this._scrollbarElement,
       handleElement: this._handleElement,
@@ -159,6 +214,12 @@ export default Ember.Component.extend(InboundActionsMixin, {
       height: this.$().height(),
       scrollbarWidth: this._scrollbarWidth
     });
+
+
+    this.set('scrollContentStylesObject', scrollBar.resizeScrollContent());
+    this.set('contentStylesObject', scrollBar.resizeContentElement());
+    this.set('handleStylesObject', scrollBar.update());
+    return scrollBar;
   },
 
   startDrag(e) {

@@ -70,7 +70,7 @@ export default class Scrollable {
     // Scroll the content by the same percentage.
     let scrollPos = dragPerc * this.contentSize();
 
-    this.scrollTo(scrollPos);
+    return Math.round(scrollPos) + 'px';
   }
 
   jumpScroll(e) {
@@ -83,7 +83,7 @@ export default class Scrollable {
 
     let scrollPos = (eventOffset < handleOffset) ? scrollOffset - jumpAmt : scrollOffset + jumpAmt;
 
-    this.scrollTo(scrollPos);
+    return Math.round(scrollPos) + 'px';
   }
 
   update() {

@@ -13,6 +13,7 @@ const {
   isEmpty,
   isPresent,
   String: {
+    camelize,
     htmlSafe
   }
 } = Ember;
@@ -82,6 +83,14 @@ export default Ember.Component.extend(InboundActionsMixin, {
    */
   _previousScrollTo: null,
 
+  offsetAttr: computed('horizontal', function() {
+    return this.get('horizontal') ? 'left' : 'top';
+  }),
+
+  scrollOffsetAttr: computed('offsetAttr', function() {
+    return camelize(`scroll-${this.get('offsetAttr')}`);
+  }),
+
 
   /*
    * JSON object with keys representing CSS styles their respective values for the content that is being scrolled.
@@ -91,9 +100,10 @@ export default Ember.Component.extend(InboundActionsMixin, {
    */
   scrollContentStylesObject: null,
 
-  scrollContentStyles: computed('scrollContentStylesObject', function() {
-    return styleify(this.get('scrollContentStylesObject'));
-  }),
+  scrollContentStyles: computed('scrollContentStylesObject', 'scrollContentStylesObject.scrollTop',
+    'scrollContentStylesObject.scrollLeft', function() {
+      return styleify(this.get('scrollContentStylesObject'));
+    }),
 
   contentStylesObject: null,
 
@@ -103,7 +113,7 @@ export default Ember.Component.extend(InboundActionsMixin, {
 
   handleStylesObject: null,
 
-  handleStyles: computed('handleStylesObject', function() {
+  handleStyles: computed('handleStylesObject', 'handleStylesObject.handleOffset', 'handleStylesObject.handleSize', function() {
     const handleStylesObject = this.get('handleStylesObject');
     if (handleStylesObject) {
       if (this.get('horizontal')) {
@@ -134,9 +144,13 @@ export default Ember.Component.extend(InboundActionsMixin, {
     const newOffset = this.get('scrollTo');
 
     if (oldOffset !== newOffset) {
-      this.set('_previousScrollTo', newOffset);
-      this.scrollToPosition(newOffset);
+      this.scrollToPositionAndUpdatePreviousValue(newOffset);
     }
+  },
+
+  scrollToPositionAndUpdatePreviousValue(newOffset) {
+    this.set('_previousScrollTo', newOffset);
+    this.scrollToPosition(newOffset);
   },
 
   measureScrollbar() {
@@ -245,7 +259,9 @@ export default Ember.Component.extend(InboundActionsMixin, {
   drag(e) {
     e.preventDefault();
 
-    this.get('scrollbar').drag(e);
+    const newOffset = this.get('scrollbar').drag(e);
+    this.set(`handleStylesObject.handleOffset`, newOffset);
+    this.scrollToPositionAndUpdatePreviousValue(newOffset);
   },
 
   endDrag() {
@@ -265,8 +281,13 @@ export default Ember.Component.extend(InboundActionsMixin, {
     if (e.target === this._handleElement[0]) {
       return;
     }
+    const scrollBar = this.get('scrollbar');
+    const newOffset = scrollBar.jumpScroll(e);
+    const newOffsetAsNumber = Number.parseInt(newOffset);
+    this.scrollToPositionAndUpdatePreviousValue(newOffset);
 
-    this.get('scrollbar').jumpScroll(e);
+    const handleOffset = Math.round(Math.min(scrollBar.contentOuterSize() - scrollBar.scrollbarSize(), newOffsetAsNumber)) + 'px';
+    this.set(`handleStylesObject.handleOffset`, handleOffset);
   },
 
   /**

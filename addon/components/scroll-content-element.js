@@ -8,6 +8,7 @@ const {
   run: {
     schedule
   },
+  run,
   K
 } = Ember;
 
@@ -164,8 +165,10 @@ export default Ember.Component.extend(DomMixin, {
   },
 
   configureInitialScrollPosition() {
-    this.scrollToPosition(this.get('scrollToX'), 'X');
-    this.scrollToPosition(this.get('scrollToY'), 'Y');
+    run(() => {
+      this.scrollToPosition(this.get('scrollToX'), 'X');
+      this.scrollToPosition(this.get('scrollToY'), 'Y');
+    });
   },
 
   didInsertElement() {

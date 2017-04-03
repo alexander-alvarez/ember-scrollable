@@ -2,7 +2,7 @@ import Ember from 'ember';
 import InboundActionsMixin from 'ember-component-inbound-actions/inbound-actions';
 import DomMixin from 'ember-lifeline/mixins/dom';
 import layout from '../templates/components/ember-scrollable';
-import {Horizontal, Vertical} from '../classes/scrollable';
+import { Horizontal, Vertical } from '../classes/scrollable';
 
 const {
   computed,
@@ -13,6 +13,7 @@ const {
     debounce,
     throttle
   },
+  String: { camelize },
   $
 } = Ember;
 
@@ -203,11 +204,7 @@ export default Ember.Component.extend(InboundActionsMixin, DomMixin, {
   verticalMouseOffset: 0,
 
   scrollContentSize(sizeAttr) {
-    return this._scrollContentElement[sizeAttr]();
-  },
-
-  contentSize(sizeAttr) {
-    return this._contentElement[sizeAttr]();
+    return this._contentElement[camelize('outer-' + sizeAttr)](true);
   },
 
   setupElements() {
@@ -350,7 +347,7 @@ export default Ember.Component.extend(InboundActionsMixin, DomMixin, {
    * @private
    */
   updateMouseOffset(e){
-    const {pageX, pageY} = e;
+    const { pageX, pageY } = e;
     this.set('horizontalMouseOffset', pageX);
     this.set('verticalMouseOffset', pageY);
   },
@@ -378,7 +375,7 @@ export default Ember.Component.extend(InboundActionsMixin, DomMixin, {
    * @private
    */
   updateScrollbarAndSetupProperties(scrollOffset, scrollbarDirection) {
-    const {handleOffset, handleSize} = this.get(`${scrollbarDirection}Scrollbar`).getHandlePositionAndSize(scrollOffset);
+    const { handleOffset, handleSize } = this.get(`${scrollbarDirection}Scrollbar`).getHandlePositionAndSize(scrollOffset);
     this.set(`${scrollbarDirection}HandleOffset`, handleOffset);
     this.set(`${scrollbarDirection}HandleSize`, handleSize);
   },
@@ -456,7 +453,7 @@ export default Ember.Component.extend(InboundActionsMixin, DomMixin, {
    * @private
    */
   updateScrollToProperty(scrollProp, dragPerc, sizeAttr) {
-    const srcollTo = dragPerc * this.contentSize(sizeAttr);
+    const srcollTo = dragPerc * this.scrollContentSize(sizeAttr);
     this.set(scrollProp, srcollTo);
   },
 

@@ -34,11 +34,9 @@
   scrollToY=scrollToY
   onScroll=(action 'scrolled')
 }}
-  <div class="tse-content scrollable-content">
     {{yield (hash
               recalculate=(action 'recalculate')
               update=(action 'update')
               scrollTop=(action 'scrollTop')
             )}}
-  </div>
 {{/scroll-content-element}}

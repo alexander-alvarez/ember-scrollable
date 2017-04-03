@@ -3,6 +3,7 @@ const {
   String: {camelize}
 } = Ember;
 
+const INCLUDE_MARGIN = true;
 
 export default class Scrollable {
   constructor(options) {
@@ -20,7 +21,7 @@ export default class Scrollable {
   }
 
   contentOuterSize() {
-    return this.contentElement[camelize(`outer-${this.sizeAttr}`)]();
+    return this.contentElement[camelize(`outer-${this.sizeAttr}`)](INCLUDE_MARGIN);
   }
 
   getHandlePositionAndSize(scrollOffset) {

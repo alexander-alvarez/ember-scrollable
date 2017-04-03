@@ -6,9 +6,9 @@
 </section>
 <section class="vertical-demo">
   <h1>Synchronized Scrolling</h1>
-
+{{!--
   <div class="output">
-    {{!-- BEGIN-SNIPPET vertical --}}
+    {{!-- BEGIN-SNIPPET vertical
     <div style="height: 400px;">
       {{#ember-scrollable scrollToY=scrollToY onScroll=(action (mut scrollToY))}}
         <p>
@@ -37,11 +37,11 @@
         <p>Some more content</p>
       {{/ember-scrollable}}
     </div>
-    {{!-- END-SNIPPET --}}
+    {{!-- END-SNIPPET
   </div>
 
   <div class="output">
-    {{!-- BEGIN-SNIPPET vertical --}}
+    {{!-- BEGIN-SNIPPET vertical
     <div style="height: 400px;">
       {{#ember-scrollable scrollToY=scrollToY onScroll=(action (mut scrollToY))}}
         <p>
@@ -70,6 +70,30 @@
         <p>Some more content</p>
       {{/ember-scrollable}}
     </div>
+    {{!-- END-SNIPPET
+  </div>
+--}}
+  <div class="output" style="height: 200px;">
+
+    <style>
+      .fixed-height .scrollable-content {
+        height: 100px;
+      }
+    </style>
+
+    {{#ember-scrollable class="fixed-height"}}
+    {{!-- BEGIN-SNIPPET vertical --}}
+      {{#vertical-collection model.range
+           minHeight=30
+           containerSelector=".tse-scroll-content"
+           class="tse-content scrollable-content"
+          as |item index|
+        }}
+        <p>{{item}}</p>
+        {{/vertical-collection}}
+   {{/ember-scrollable}}
     {{!-- END-SNIPPET --}}
   </div>
+
+
 </section>

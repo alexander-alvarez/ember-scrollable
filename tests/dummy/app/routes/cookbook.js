@@ -6,7 +6,7 @@ export default Route.extend({
 
   model() {
     return {
-      range: Array.apply(null, new Array(10000)).map((_, i) => i + 1)
+      range: Array.apply(null, new Array(10000)).map((_, i) => i + 1).map(o => ({id: o}))
     };
   }
 });

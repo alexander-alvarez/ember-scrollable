@@ -75,23 +75,17 @@
 --}}
   <div class="output" style="height: 200px;">
 
-  <div style="height: 200px; width: 100px;" class="scrollable">
-    {{#vertical-collection model.range
-      minHeight=20
-      staticHeight=true
-      as |item i|}}
-      <div style="height:20px;">
-        {{debugger}}
-        {{item.id}}:{{i}}
-      </div>
-    {{/vertical-collection}}
-  </div>
-
     {{#ember-scrollable class="fixed-height"}}
-    {{!-- BEGIN-SNIPPET vertical --}}
-
+      {{#vertical-collection model.range
+        minHeight=20
+        staticHeight=true
+        containerSelector='.tse-scroll-content'
+        as |item i|}}
+        <div style="height:20px;">
+          {{item.id}}:{{i}}
+        </div>
+      {{/vertical-collection}}
    {{/ember-scrollable}}
-    {{!-- END-SNIPPET --}}
   </div>
 
 

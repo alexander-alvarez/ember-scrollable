@@ -63,7 +63,7 @@ function testInitialOffsetTriggersAScrollEvent(assert, template, scrollProp, dir
   // Template block usage:
   this.render(template);
 
-  flushScrollAndWait().then(() => {
+  wait().then(() => {
     assert.deepEqual(scrolledCallArgs[0], [5, direction]);
     assert.deepEqual(scrolledCallArgs.length, 1);
     done();
@@ -134,13 +134,13 @@ function testScrollOccursAndEventTriggersWithDirectionAndOffset(assert, template
   this.render(template);
   // Initial non-zero offset triggers a scroll event.
 
-  flushScrollAndWait().then(() => {
+  wait().then(() => {
     // WHEN the scrollX position has moved left to 0px
     this.$(cssSelector)[scrollMethod](firstMovement);
-    flushScrollAndWait().then(() => {
+    wait().then(() => {
       // and then right to 25px;
       this.$(cssSelector)[scrollMethod](secondMovement);
-      flushScrollAndWait().then(() => {
+      wait().then(() => {
         //THEN scroll gets called accordingly, and a horizontal scroll is detected
         assert.deepEqual(scrolledCallArgs[0], [initialPosition, direction]);
         assert.deepEqual(scrolledCallArgs[1], [firstMovement, direction]);

@@ -161,7 +161,7 @@ export default Ember.Component.extend(DomMixin, {
       return;
     }
     const scrollOffsetAttr = direction === 'X' ? 'scrollLeft' : 'scrollTop';
-    this.$()[scrollOffsetAttr](offset);
+    this.$()[0][scrollOffsetAttr] = offset;
   },
 
   configureInitialScrollPosition() {

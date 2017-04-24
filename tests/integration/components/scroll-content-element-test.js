@@ -7,11 +7,9 @@ moduleForComponent('scroll-content-element', 'Integration | Component | scroll c
   integration: true
 });
 
-const flushScrollAndWait =  function() {
-  return wait().then(() => {
-    return new Ember.RSVP.Promise((resolve) => {
-      window.requestAnimationFrame(resolve);
-    });
+const flushScrollAndWait = function() {
+  return new Ember.RSVP.Promise((resolve) => {
+    window.requestAnimationFrame(resolve);
   });
 };
 
@@ -63,7 +61,7 @@ function testInitialOffsetTriggersAScrollEvent(assert, template, scrollProp, dir
   // Template block usage:
   this.render(template);
 
-  wait().then(() => {
+  flushScrollAndWait().then(() => {
     assert.deepEqual(scrolledCallArgs[0], [5, direction]);
     assert.deepEqual(scrolledCallArgs.length, 1);
     done();
@@ -134,13 +132,13 @@ function testScrollOccursAndEventTriggersWithDirectionAndOffset(assert, template
   this.render(template);
   // Initial non-zero offset triggers a scroll event.
 
-  wait().then(() => {
+  flushScrollAndWait().then(() => {
     // WHEN the scrollX position has moved left to 0px
     this.$(cssSelector)[scrollMethod](firstMovement);
-    wait().then(() => {
+    flushScrollAndWait().then(() => {
       // and then right to 25px;
       this.$(cssSelector)[scrollMethod](secondMovement);
-      wait().then(() => {
+      flushScrollAndWait().then(() => {
         //THEN scroll gets called accordingly, and a horizontal scroll is detected
         assert.deepEqual(scrolledCallArgs[0], [initialPosition, direction]);
         assert.deepEqual(scrolledCallArgs[1], [firstMovement, direction]);

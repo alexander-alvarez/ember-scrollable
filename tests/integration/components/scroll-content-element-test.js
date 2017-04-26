@@ -1,13 +1,14 @@
 import Ember from 'ember';
-import {moduleForComponent, test} from 'ember-qunit';
+import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
+import { scrollTo } from 'ember-native-dom-helpers';
 
 moduleForComponent('scroll-content-element', 'Integration | Component | scroll content element', {
   integration: true
 });
 
-const flushScrollAndWait =  function() {
+const flushScrollAndWait = function() {
   return wait().then(() => {
     return new Ember.RSVP.Promise((resolve) => {
       window.requestAnimationFrame(resolve);
@@ -117,13 +118,15 @@ function testScrollOccursAndEventTriggersWithDirectionAndOffset(assert, template
   const firstMovement = 5;
   const secondMovement = 25;
 
+  const args = [firstMovement, secondMovement];
+  const other = [undefined, undefined];
   const done = assert.async();
 
   this.setProperties({
     [scrollProp]: initialPosition
   });
 
-  const scrollMethod = direction === 'horizontal' ? 'scrollLeft' : 'scrollTop';
+  const scrollArgs = direction === 'horizontal' ? [args, other] : [other, args];
 
   const scrolledCallArgs = [];
   this.on('scrolled', function(e, scrollOffset, scrollDir) {
@@ -136,11 +139,10 @@ function testScrollOccursAndEventTriggersWithDirectionAndOffset(assert, template
 
   flushScrollAndWait().then(() => {
     // WHEN the scrollX position has moved left to 0px
-    this.$(cssSelector)[scrollMethod](firstMovement);
-    flushScrollAndWait().then(() => {
+
+    scrollTo(cssSelector, scrollArgs[0][0], scrollArgs[1][0]).then(() => {
       // and then right to 25px;
-      this.$(cssSelector)[scrollMethod](secondMovement);
-      flushScrollAndWait().then(() => {
+      scrollTo(cssSelector, scrollArgs[0][1], scrollArgs[1][1]).then(() => {
         //THEN scroll gets called accordingly, and a horizontal scroll is detected
         assert.deepEqual(scrolledCallArgs[0], [initialPosition, direction]);
         assert.deepEqual(scrolledCallArgs[1], [firstMovement, direction]);

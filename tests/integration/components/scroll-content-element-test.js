@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import {moduleForComponent, test} from 'ember-qunit';
+import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
 
@@ -7,7 +7,7 @@ moduleForComponent('scroll-content-element', 'Integration | Component | scroll c
   integration: true
 });
 
-const flushScrollAndWait =  function() {
+const flushScrollAndWait = function() {
   return wait().then(() => {
     return new Ember.RSVP.Promise((resolve) => {
       window.requestAnimationFrame(resolve);
@@ -48,36 +48,30 @@ const HORIZONTAL_TEMPLATE = hbs`
   `;
 
 
-function testInitialOffsetTriggersAScrollEvent(assert, template, scrollProp, direction) {
-  assert.expect(2);
-  const done = assert.async();
-  this.setProperties({
-    [scrollProp]: 5
-  });
+function testInitialOffsetTriggersAScrollEvent(template, scrollProp, direction) {
+  return async function(assert) {
+    assert.expect(2);
+    this.setProperties({
+      [scrollProp]: 5
+    });
 
-  const scrolledCallArgs = [];
-  this.on('scrolled', function(e, scollOffset, scrollDir) {
-    scrolledCallArgs.push([scollOffset, scrollDir]);
-  });
+    const scrolledCallArgs = [];
+    this.on('scrolled', function(e, scollOffset, scrollDir) {
+      scrolledCallArgs.push([scollOffset, scrollDir]);
+    });
 
-  // Template block usage:
-  this.render(template);
+    // Template block usage:
+    this.render(template);
 
-  flushScrollAndWait().then(() => {
+    await flushScrollAndWait();
     assert.deepEqual(scrolledCallArgs[0], [5, direction]);
     assert.deepEqual(scrolledCallArgs.length, 1);
-    done();
-  });
-  return done;
-}
+  }
+};
 
-test('Vertical: Initial offset triggers a scroll event', function(assert) {
-  return testInitialOffsetTriggersAScrollEvent.apply(this, [assert, VERTICAL_TEMPLATE, 'scrollToY', 'vertical']);
-});
+test('Vertical: Initial offset triggers a scroll event', testInitialOffsetTriggersAScrollEvent(VERTICAL_TEMPLATE, 'scrollToY', 'vertical'));
 
-test('Horizontal: Initial offset triggers a scroll event', function(assert) {
-  return testInitialOffsetTriggersAScrollEvent.apply(this, [assert, HORIZONTAL_TEMPLATE, 'scrollToX', 'horizontal']);
-});
+test('Horizontal: Initial offset triggers a scroll event', testInitialOffsetTriggersAScrollEvent(HORIZONTAL_TEMPLATE, 'scrollToX', 'horizontal'));
 
 
 function testDefaultOffsetNoScrollEventTriggered(assert, template, scrollProp) {
